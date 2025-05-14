@@ -1,4 +1,10 @@
-import { PureComponent, ReactNode } from "react";
+import {
+  PureComponent,
+  ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import withStyles, { Styles } from "react-jss";
 
 const styles: Styles = {
@@ -8,6 +14,7 @@ const styles: Styles = {
       color: "blue",
     },
     padding: "1rem",
+    pointerEvents: "none",
   },
 };
 
@@ -16,13 +23,49 @@ const styles: Styles = {
 export class AppComponent extends PureComponent<{
   classes?: Record<string, string>;
 }> {
+  state = {
+    opened: false,
+  };
   render(): ReactNode {
     const { classes = {} } = this.props;
 
     return (
-      <button tabIndex={-1} className={classes.button}>
-        button
-      </button>
+      <div>
+        <button
+          onClick={(e) => {
+            if (e.detail > 0) {
+              this.setState({ opened: true });
+            }
+          }}
+          tabIndex={-1}
+          className={classes.button}
+        >
+          button
+        </button>
+        {this.state.opened && <Section />}
+      </div>
     );
   }
 }
+
+const Section = () => {
+  const [state, setState] = useState(() => ({ value: 1 }));
+
+  useLayoutEffect(() => {
+    setState((v) => ({ value: 2 }));
+  }, []);
+
+  useEffect(() => {
+    setState({ value: state.value + 1 });
+  }, []);
+
+  useEffect(() => {
+    async function run() {
+      await new Promise((r) => setTimeout(r, 400));
+      setState({ value: state.value + 1 });
+    }
+    run();
+  }, []);
+
+  return <div>{state.value}</div>;
+};
