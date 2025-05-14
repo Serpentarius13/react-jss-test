@@ -7,6 +7,9 @@ import {
 } from "react";
 import withStyles, { Styles } from "react-jss";
 
+// 1. Нажать кнопку с помощью таба, сделать так чтобы когда на нее наводишься табом была синяя обводка
+// которая не изменяет ширину элемента
+
 const styles: Styles = {
   button: {
     color: "red",
@@ -25,6 +28,7 @@ export class AppComponent extends PureComponent<{
 }> {
   state = {
     opened: false,
+    counter: 0,
   };
   render(): ReactNode {
     const { classes = {} } = this.props;
@@ -42,6 +46,7 @@ export class AppComponent extends PureComponent<{
         >
           button
         </button>
+
         {this.state.opened && <Section />}
       </div>
     );
@@ -51,21 +56,55 @@ export class AppComponent extends PureComponent<{
 const Section = () => {
   const [state, setState] = useState(() => ({ value: 1 }));
 
+  const items = Array.from({ length: 777777 }).map(() => ({
+    foo: 1,
+    bar: 2,
+  }));
+
+  // 2. В каком порядке выполнятся условия? Как сделать так, чтобы стало state.value = 4? Почему?
   useLayoutEffect(() => {
     setState((v) => ({ value: 2 }));
   }, []);
 
   useEffect(() => {
-    setState({ value: state.value + 1 });
+    setState((state) => ({ value: state.value + 1 }));
   }, []);
 
   useEffect(() => {
     async function run() {
       await new Promise((r) => setTimeout(r, 400));
-      setState({ value: state.value + 1 });
+      setState((state) => ({ value: state.value + 1 }));
     }
     run();
   }, []);
 
-  return <div>{state.value}</div>;
+  return (
+    <div>
+      {state.value}{" "}
+      <div
+        style={{
+          background: "yellow",
+          color: "black",
+          width: "fit-content",
+          padding: "12px",
+        }}
+      >
+        {items.length} items!
+      </div>
+      {state.value >= 4 && (
+        <Timer
+          onTick={() => setState((state) => ({ value: state.value + 1 }))}
+        />
+      )}
+    </div>
+  );
+};
+
+// 3. Почему интервал стоит 10мс, но обновления редкие?
+const Timer = ({ onTick }: { onTick: () => void }) => {
+  useEffect(() => {
+    const i = setInterval(onTick, 10);
+    return () => clearInterval(i);
+  }, []);
+  return null;
 };
