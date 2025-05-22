@@ -37,7 +37,7 @@ export class AppComponent extends PureComponent<{
       <div>
         <button
           onClick={(e) => {
-            if (e.detail > 0) {
+            if (e.detail === 0) {
               this.setState({ opened: true });
             }
           }}
@@ -54,7 +54,7 @@ export class AppComponent extends PureComponent<{
 }
 
 const Section = () => {
-  const [state, setState] = useState(() => ({ value: 1 }));
+  const [state, setState] = useState({ value: 0 });
 
   const items = Array.from({ length: 777777 }).map(() => ({
     foo: 1,
@@ -63,24 +63,24 @@ const Section = () => {
 
   // 2. В каком порядке выполнятся условия? Как сделать так, чтобы стало state.value = 4? Почему?
   useLayoutEffect(() => {
-    setState((v) => ({ value: 2 }));
+    setState({ value: 2 });
   }, []);
 
   useEffect(() => {
-    setState((state) => ({ value: state.value + 1 }));
+    setState({ value: state.value + 1 });
   }, []);
 
   useEffect(() => {
     async function run() {
-      await new Promise((r) => setTimeout(r, 400));
-      setState((state) => ({ value: state.value + 1 }));
+      await new Promise((r) => setTimeout(r, 300));
+      setState({ value: state.value + 1 });
     }
     run();
   }, []);
 
   return (
     <div>
-      {state.value}{" "}
+      {state.value}
       <div
         style={{
           background: "yellow",
